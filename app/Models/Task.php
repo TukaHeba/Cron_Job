@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Task extends Model
 {
@@ -29,7 +30,7 @@ class Task extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'due_date'    => 'date',
+        'due_date'    => 'datetime',
         'assigned_to' => 'integer',
         'created_by'  => 'integer',
     ];
@@ -52,5 +53,38 @@ class Task extends Model
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Scope to filter pending tasks.
+     * 
+     * @param mixed $query
+     * @return mixed
+     */
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    /**
+     * Scope to filter completed tasks.
+     * 
+     * @param mixed $query
+     * @return mixed
+     */
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'completed');
+    }
+
+    /**
+     * Accessor to format the due date.
+     * 
+     * @param mixed $value
+     * @return string|null
+     */
+    public function getDueDateAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->format('Y-m-d') : null;
     }
 }
