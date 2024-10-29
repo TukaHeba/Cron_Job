@@ -4,6 +4,8 @@ namespace App\Http\Requests\Task;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreTaskRequest extends FormRequest
 {
@@ -26,11 +28,10 @@ class StoreTaskRequest extends FormRequest
     {
         $this->merge([
             'title' => $this->title ? ucwords(trim($this->title)) : null,
-            'due_date' => $this->due_date ? date('Y-m-d', strtotime($this->due_date)) : null, // Corrected this line
+            'due_date' => $this->due_date ? date('Y-m-d', strtotime($this->due_date)) : null,
             'created_by' => Auth::id(),
         ]);
     }
-
 
     /**
      * Get the validation rules that apply to the request.
@@ -42,9 +43,7 @@ class StoreTaskRequest extends FormRequest
         return [
             'title' => 'required|string|max:100|min:2',
             'description' => 'nullable|string|max:1000',
-            'type' => 'required|in:bug,feature,improvement',
-            'status' => 'required|in:open,in_progress,completed,blocked',
-            'priority' => 'required|in:low,medium,high',
+            'status' => 'required|in:pending,completed',
             'due_date' => 'nullable|date|after_or_equal:today',
             'assigned_to' => 'nullable|exists:users,id',
             'created_by' => 'required|exists:users,id',
@@ -61,10 +60,8 @@ class StoreTaskRequest extends FormRequest
         return [
             'title' => 'task title',
             'description' => 'task description',
-            'type' => 'task type',
             'status' => 'task status',
-            'priority' => 'task priority',
-            'due_date' => 'due date',
+            'due_date' => 'task due date',
             'assigned_to' => 'assigned user',
             'created_by' => 'creator',
         ];
@@ -90,15 +87,14 @@ class StoreTaskRequest extends FormRequest
 
     /**
      * Handle validation errors and throw an exception.
-     *
-     * @param \Illuminate\Contracts\Validation\Validator $validator The validation instance.
+     * 
+     * @param \Illuminate\Contracts\Validation\Validator $validator
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     * @return never
      */
-    // protected function failedValidation(Validator $validator)
-    // {
-    //     $errors = $validator->errors()->all();
-    //     throw new HttpResponseException(
-    //         ApiResponseService::error($errors, 'A server error has occurred', 403)
-    //     );
-    // }
+    protected function failedValidation(Validator $validator)
+    {
+        $errors = $validator->errors();
+        throw new HttpResponseException(redirect()->back()->withErrors($errors)->withInput());
+    }
 }

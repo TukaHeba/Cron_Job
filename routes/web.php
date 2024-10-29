@@ -26,4 +26,6 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('tasks', TaskController::class);
+    Route::get('/tasks/{task}/change-status', [TaskController::class, 'showChangeStatus'])->name('tasks.changeStatus');
+    Route::patch('/tasks/{task}/update-status', [TaskController::class, 'changeStatus'])->name('tasks.updateStatus');
 });

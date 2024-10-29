@@ -21,7 +21,7 @@
 
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
-                            <textarea name="description" id="description" class="form-control" rows="3" required>{{ old('description') }}</textarea>
+                            <textarea name="description" id="description" class="form-control" rows="3">{{ old('description') }}</textarea>
                             @error('description')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
@@ -30,8 +30,8 @@
                         <div class="mb-3">
                             <label for="status" class="form-label">Status</label>
                             <select name="status" id="status" class="form-select" required>
-                                <option value="Pending" {{ (old('status') == 'Pending') ? 'selected' : '' }}>Pending</option>
-                                <option value="Completed" {{ (old('status') == 'Completed') ? 'selected' : '' }}>Completed</option>
+                                <option value="pending" {{ (old('status') == 'pending') ? 'selected' : '' }}>Pending</option>
+                                <option value="completed" {{ (old('status') == 'completed') ? 'selected' : '' }}>Completed</option>
                             </select>
                             @error('status')
                                 <div class="text-danger">{{ $message }}</div>
