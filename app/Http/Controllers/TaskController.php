@@ -8,6 +8,7 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\TaskService;
+use Exception;
 
 class TaskController extends Controller
 {
@@ -46,10 +47,13 @@ class TaskController extends Controller
     {
         $this->authorize('create', Task::class);
 
-        $validated = $request->validated();
-        $this->taskService->createTask($validated);
-
-        return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
+        try {
+            $validated = $request->validated();
+            $this->taskService->createTask($validated);
+            return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Unable to create task.']);
+        }
     }
 
     /**
@@ -83,10 +87,13 @@ class TaskController extends Controller
     {
         $this->authorize('update', $task);
 
-        $validated = $request->validated();
-        $this->taskService->updateTask($task, $validated);
-
-        return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
+        try {
+            $validated = $request->validated();
+            $this->taskService->updateTask($task, $validated);
+            return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Unable to update task.']);
+        }
     }
 
     /**
@@ -95,9 +102,13 @@ class TaskController extends Controller
     public function destroy(Task $task)
     {
         $this->authorize('delete', $task);
-        $this->taskService->deleteTask($task);
 
-        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
+        try {
+            $this->taskService->deleteTask($task);
+            return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Unable to delete task.']);
+        }
     }
 
     /**
@@ -117,8 +128,12 @@ class TaskController extends Controller
     public function changeStatus(Request $request, Task $task)
     {
         $this->authorize('changeStatus', $task);
-        $this->taskService->changeTaskStatus($task->id, $request->input('status'));
 
-        return redirect()->route('tasks.index')->with('success', 'Task status updated successfully.');
+        try {
+            $this->taskService->changeTaskStatus($task->id, $request->input('status'));
+            return redirect()->route('tasks.index')->with('success', 'Task status updated successfully.');
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Unable to change task status.']);
+        }
     }
 }
